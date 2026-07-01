@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Knowledge Check — C+R Customization</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #f8fafc;
+    color: #2d3748;
+    min-height: 100vh;
+    padding: 0;
+  }
+  .header {
+    background: #1a1a2e;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-badge {
+    background: #1A6AFF;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .header-sub {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-left: auto;
+  }
+  .progress-bar-wrap {
+    background: #e2e8f0;
+    height: 4px;
+  }
+  .progress-bar-fill {
+    background: #1A6AFF;
+    height: 4px;
+    transition: width 0.4s ease;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+  .scenario-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1A6AFF;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .scenario-context {
+    background: #eff6ff;
+    border-left: 3px solid #1A6AFF;
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #1e40af;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .option {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 15px;
+    color: #2d3748;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left;
+    width: 100%;
+    line-height: 1.5;
+  }
+  .option:hover:not(:disabled) { border-color: #1A6AFF; background: #f0f7ff; }
+  .option:disabled { cursor: default; }
+  .option-letter {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    min-width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .option.correct { border-color: #16a34a; background: #f0fdf4; }
+  .option.correct .option-letter { background: #16a34a; color: #fff; }
+  .option.wrong { border-color: #dc2626; background: #fef2f2; }
+  .option.wrong .option-letter { background: #dc2626; color: #fff; }
+  .option.dimmed { opacity: 0.45; }
+
+  .feedback-box {
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    display: none;
+  }
+  .feedback-box.correct { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+  .feedback-box.wrong { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+  .feedback-title { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+
+  .btn {
+    background: #1A6AFF;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: none;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: #1558e0; }
+
+  .score-screen {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+  .score-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #1A6AFF;
+    color: #fff;
+    font-size: 36px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+  }
+  .score-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
+  .score-sub { font-size: 16px; color: #4a5568; margin-bottom: 32px; line-height: 1.6; }
+  .score-breakdown {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .breakdown-label { flex: 1; color: #2d3748; line-height: 1.4; }
+  .retry-btn {
+    background: #f1f5f9;
+    color: #1a1a2e;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .retry-btn:hover { background: #e2e8f0; }
+  .q-counter {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-badge">Administrator</span>
+  <span class="header-title">C+R Customization — Knowledge Check</span>
+  <span class="header-sub" id="header-counter">Question 1 of 4</span>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+</div>
+
+<div class="container">
+
+  <!-- Quiz -->
+  <div id="quiz-area">
+    <div class="q-counter" id="q-counter">Question 1 of 4</div>
+    <div class="scenario-label" id="scenario-label"></div>
+    <div class="question-text" id="question-text"></div>
+    <div class="scenario-context" id="scenario-context"></div>
+    <div class="options" id="options-list"></div>
+    <div class="feedback-box" id="feedback-box">
+      <div class="feedback-title" id="feedback-title"></div>
+      <div id="feedback-body"></div>
+    </div>
+    <button class="btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+  </div>
+
+  <!-- Score screen -->
+  <div class="score-screen" id="score-screen">
+    <div class="score-circle" id="score-circle"></div>
+    <div class="score-title" id="score-title"></div>
+    <div class="score-sub" id="score-sub"></div>
+    <div class="score-breakdown" id="score-breakdown"></div>
+    <button class="retry-btn" onclick="restart()">Try again</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    scenario: "Scenario 1 — Custom Views",
+    question: "A coach wants the student-athlete profile to show a \"Team Info\" section above all other fields. What should you do?",
+    context: "You're setting up a profile view for the football program. The coach wants to immediately see team-specific data at the top whenever they open a player's record.",
+    options: [
+      "Go to Settings → Custom Views → Add Layout → Student Athlete Profile → drag a Heading element → type \"Team Info\" → Save.",
+      "Contact Teamworks support to request a custom profile section be added to the system.",
+      "Go to the student-athlete's record and edit the profile fields directly.",
+      "Create a new custom field named \"Team Info\" under the Student Athlete Fields tab."
+    ],
+    correct: 0,
+    feedback_correct: "That's right. Heading elements are added through Add Layout in Custom Views — no support ticket needed. You drag the Heading, type your label, save the view, and it appears for every athlete in that view.",
+    feedback_wrong: "Not quite. Custom section headers (Headings) are added through Settings → Custom Views → Add Layout. You drag the Heading element into the layout and type your label. No support ticket or field creation is needed."
+  },
+  {
+    scenario: "Scenario 2 — Sport-Specific Filters",
+    question: "The basketball recruiting staff says their recruit list doesn't have a filter for academic eligibility status. How do you add it?",
+    context: "Each sport can have its own recruit filter set. You need to add this filter for basketball only — not all sports.",
+    options: [
+      "Go to Settings → Custom Views and add a filter field to the recruit profile layout.",
+      "Click the gear icon at the bottom → select Basketball → click Recruit Filters tab → add the eligibility filter from the list below.",
+      "Create a new custom recruit field called \"Academic Eligibility\" and it will automatically appear as a filter.",
+      "Edit the global filter settings and enable academic eligibility across all sports."
+    ],
+    correct: 1,
+    feedback_correct: "Correct. Sport-specific recruit filters are managed per sport via the gear icon at the bottom. Select the sport, go to the Recruit Filters tab, and add filters from the list — changes only affect that sport.",
+    feedback_wrong: "Not quite. Sport-specific filters live behind the gear icon at the bottom of the page. Select Basketball, go to Recruit Filters, and add the filter. This keeps it scoped to basketball only — other sports are unaffected."
+  },
+  {
+    scenario: "Scenario 3 — Custom Fields",
+    question: "Your compliance office wants to track whether each student-athlete received a scholarship each year. What type of custom field should you create?",
+    context: "Scholarship status can change from year to year — an athlete may have a scholarship in Year 1 but not in Year 2.",
+    options: [
+      "A static custom field, because scholarship data shouldn't change once set.",
+      "A standard roster field — no custom field is needed since this is common data.",
+      "A year-specific custom field, so scholarship status is tracked independently for each academic year.",
+      "A recruit field, since scholarship decisions happen during the recruiting process."
+    ],
+    correct: 2,
+    feedback_correct: "Exactly right. Year-specific fields track a separate value per academic year. Since scholarship status can change annually, year-specific is the correct choice — each year's record stays independent.",
+    feedback_wrong: "Not quite. Because scholarship status can change year to year, you need a year-specific custom field. This lets C+R store a separate value for each academic year rather than overwriting the previous one."
+  },
+  {
+    scenario: "Scenario 4 — Custom Recruit Fields",
+    question: "Your recruiting coordinator wants to flag recruits who have attended a campus visit. What's the right way to set this up?",
+    context: "This data doesn't exist in C+R by default. Once added, the coordinator needs to be able to filter recruits by campus visit status on their list view.",
+    options: [
+      "Go to Settings → Recruit Fields → Add Custom Recruit Field → name it \"Campus Visit\" → choose Yes/No appearance → enable as a filter → Save.",
+      "Go to Settings → Student Athlete Fields → Add Custom Roster Field → name it \"Campus Visit\" → Save.",
+      "Add \"Campus Visit\" as a Heading element in the recruit profile Custom View.",
+      "Ask the recruit to fill out a campus visit form — C+R will automatically create the field."
+    ],
+    correct: 0,
+    feedback_correct: "Perfect. Custom recruit fields live under Settings → Recruit Fields — separate from student-athlete fields. Choosing Yes/No and enabling the filter display means the coordinator can filter their recruit list by this field immediately after setup.",
+    feedback_wrong: "Not quite. Recruit-specific data goes under Settings → Recruit Fields (not Student Athlete Fields). Create the field with a Yes/No appearance and enable it as a filter, so the coordinator can filter their recruit list by campus visit status."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let results = [];
+
+function render() {
+  const q = questions[current];
+  document.getElementById('scenario-label').textContent = q.scenario;
+  document.getElementById('question-text').textContent = q.question;
+  document.getElementById('scenario-context').textContent = q.context;
+  document.getElementById('q-counter').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('header-counter').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('progress-bar').style.width = `${(current / questions.length) * 100}%`;
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => select(i, btn);
+    list.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.style.display = 'none';
+  fb.className = 'feedback-box';
+  document.getElementById('next-btn').style.display = 'none';
+  answered = false;
+}
+
+function select(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const options = document.querySelectorAll('.option');
+  const isCorrect = idx === q.correct;
+
+  if (isCorrect) score++;
+  results.push({ label: q.scenario, correct: isCorrect });
+
+  options.forEach((el, i) => {
+    el.disabled = true;
+    if (i === q.correct) el.classList.add('correct');
+    else if (i === idx && !isCorrect) el.classList.add('wrong');
+    else el.classList.add('dimmed');
+    const letter = el.querySelector('.option-letter');
+    if (i === q.correct) { letter.style.background = '#16a34a'; letter.style.color = '#fff'; }
+    else if (i === idx && !isCorrect) { letter.style.background = '#dc2626'; letter.style.color = '#fff'; }
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.style.display = 'block';
+  fb.className = 'feedback-box ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('feedback-title').textContent = isCorrect ? '✓ Correct' : '✗ Not quite';
+  document.getElementById('feedback-body').textContent = isCorrect ? q.feedback_correct : q.feedback_wrong;
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = current < questions.length - 1 ? 'Next question →' : 'See my results →';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) { showScore(); return; }
+  render();
+}
+
+function showScore() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'block';
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('header-counter').textContent = 'Complete';
+
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('score-circle').textContent = `${pct}%`;
+  document.getElementById('score-title').textContent =
+    pct === 100 ? 'Perfect score!' : pct >= 75 ? 'Strong work!' : 'Keep practicing';
+  document.getElementById('score-sub').textContent =
+    `You answered ${score} of ${questions.length} scenarios correctly. ` +
+    (pct === 100
+      ? 'You\'re ready to configure C+R customization settings with confidence.'
+      : 'Review the scenarios you missed and try again when you\'re ready.');
+
+  const breakdown = document.getElementById('score-breakdown');
+  breakdown.innerHTML = results.map(r =>
+    `<div class="breakdown-row">
+      <span class="breakdown-icon">${r.correct ? '✅' : '❌'}</span>
+      <span class="breakdown-label">${r.label}</span>
+    </div>`
+  ).join('');
+}
+
+function restart() {
+  current = 0; score = 0; answered = false; results = [];
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('score-screen').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
