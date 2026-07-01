@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Match the Task — C+R Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #f8fafc;
+    color: #2d3748;
+    padding-bottom: 48px;
+  }
+  .header {
+    background: #1a1a2e;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge {
+    background: #1A6AFF;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+  .header-title { color: #fff; font-size: 15px; font-weight: 700; }
+  .container { max-width: 780px; margin: 0 auto; padding: 36px 24px 0; }
+  .intro { margin-bottom: 28px; }
+  .intro h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .intro p { font-size: 15px; color: #4a5568; line-height: 1.6; }
+  .instruction-bar {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #1e40af;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    margin-bottom: 28px;
+  }
+  .col-head {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 2px;
+  }
+  .tasks-col, .paths-col { display: flex; flex-direction: column; gap: 10px; }
+
+  .card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, opacity 0.2s;
+    position: relative;
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+  }
+  .task-card { color: #1a1a2e; font-weight: 600; }
+  .path-card { color: #4a5568; font-family: 'Courier New', monospace; font-size: 13px; font-weight: 400; }
+
+  .card.selected { border-color: #1A6AFF; background: #eff6ff; }
+  .card.matched-correct { border-color: #16a34a; background: #f0fdf4; cursor: default; }
+  .card.matched-wrong { border-color: #dc2626; background: #fef2f2; animation: shake 0.3s ease; }
+  .card.dimmed { opacity: 0.35; cursor: default; pointer-events: none; }
+  .card.matched-correct .match-dot { background: #16a34a; }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .match-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    position: absolute;
+    top: 50%; right: 12px;
+    transform: translateY(-50%);
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .score-label { font-size: 13px; color: #64748b; }
+  .score-pips { display: flex; gap: 6px; }
+  .pip {
+    width: 28px; height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    transition: background 0.3s;
+  }
+  .pip.correct { background: #16a34a; }
+  .pip.wrong { background: #dc2626; }
+
+  .result-panel {
+    display: none;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 28px 28px;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .result-panel.show { display: block; }
+  .result-score { font-size: 48px; font-weight: 700; color: #1A6AFF; margin-bottom: 8px; }
+  .result-title { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
+  .result-body { font-size: 15px; color: #4a5568; line-height: 1.6; margin-bottom: 24px; }
+  .retry-btn {
+    background: #1A6AFF;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .retry-btn:hover { background: #1558e0; }
+
+  /* mobile */
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .path-card { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="badge">Administrator</span>
+  <span class="header-title">C+R Customization — Match the Task</span>
+</div>
+
+<div class="container">
+  <div class="intro">
+    <h2>Match each admin task to its navigation path</h2>
+    <p>Select a task on the left, then select where you'd go in C+R to complete it.</p>
+  </div>
+
+  <div class="instruction-bar">
+    <strong>How it works:</strong> Click a task card to select it (blue border), then click the matching path on the right. A green border means a correct match — a red flash means try again.
+  </div>
+
+  <div class="score-bar">
+    <span class="score-label">Progress:</span>
+    <div class="score-pips" id="pips">
+      <div class="pip" id="pip-0"></div>
+      <div class="pip" id="pip-1"></div>
+      <div class="pip" id="pip-2"></div>
+      <div class="pip" id="pip-3"></div>
+    </div>
+    <span class="score-label" id="score-label">0 of 4 matched</span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="col-head">Admin Task</div>
+      <div class="tasks-col" id="tasks-col"></div>
+    </div>
+    <div>
+      <div class="col-head">Where to go in C+R</div>
+      <div class="paths-col" id="paths-col"></div>
+    </div>
+  </div>
+
+  <div class="result-panel" id="result-panel">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-body" id="result-body"></div>
+    <button class="retry-btn" onclick="restart()">Try again</button>
+  </div>
+</div>
+
+<script>
+const pairs = [
+  {
+    task: "Add a labeled section header to a student-athlete profile view",
+    path: "Settings → Custom Views → Add Layout → Student Athlete Profile → drag Heading → type label → Save"
+  },
+  {
+    task: "Add a filter visible only to a specific sport's recruiting staff",
+    path: "Gear icon (bottom) → select sport → Recruit Filters tab → add filter from list"
+  },
+  {
+    task: "Create a data field for athletes that resets each academic year",
+    path: "Settings → Department → Student Athlete Fields → Add Custom Roster Field → enable Year Specific → Save"
+  },
+  {
+    task: "Capture a Yes/No data point on recruit records that staff can filter by",
+    path: "Settings → Recruit Fields → Add Custom Recruit Field → Yes/No appearance → enable filter display → Save"
+  }
+];
+
+let selectedTask = null;
+let correctCount = 0;
+let wrongAttempts = 0;
+const matched = new Set();
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function render() {
+  const tasksCol = document.getElementById('tasks-col');
+  const pathsCol = document.getElementById('paths-col');
+  tasksCol.innerHTML = '';
+  pathsCol.innerHTML = '';
+  selectedTask = null;
+  correctCount = 0;
+  wrongAttempts = 0;
+  matched.clear();
+  updateScore();
+  document.getElementById('result-panel').classList.remove('show');
+
+  const shuffledPaths = shuffle(pairs.map((p, i) => ({ ...p, idx: i })));
+
+  pairs.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'card task-card';
+    card.dataset.idx = i;
+    card.textContent = p.task;
+    const dot = document.createElement('div');
+    dot.className = 'match-dot';
+    card.appendChild(dot);
+    card.onclick = () => selectTask(i, card);
+    tasksCol.appendChild(card);
+  });
+
+  shuffledPaths.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card path-card';
+    card.dataset.idx = p.idx;
+    card.textContent = p.path;
+    card.onclick = () => selectPath(p.idx, card);
+    pathsCol.appendChild(card);
+  });
+}
+
+function getTaskCard(idx) {
+  return document.querySelector(`.task-card[data-idx="${idx}"]`);
+}
+function getPathCard(idx) {
+  return document.querySelector(`.path-card[data-idx="${idx}"]`);
+}
+
+function selectTask(idx, card) {
+  if (matched.has(idx)) return;
+  document.querySelectorAll('.task-card').forEach(c => {
+    if (!matched.has(parseInt(c.dataset.idx))) c.classList.remove('selected');
+  });
+  selectedTask = idx;
+  card.classList.add('selected');
+}
+
+function selectPath(pathIdx, card) {
+  if (selectedTask === null) return;
+  if (matched.has(pathIdx)) return;
+
+  if (selectedTask === pathIdx) {
+    // Correct
+    getTaskCard(selectedTask).classList.remove('selected');
+    getTaskCard(selectedTask).classList.add('matched-correct', 'dimmed');
+    card.classList.add('matched-correct', 'dimmed');
+    matched.add(pathIdx);
+    correctCount++;
+    updatePip(correctCount - 1, 'correct');
+    selectedTask = null;
+    updateScore();
+    if (correctCount === pairs.length) setTimeout(showResult, 500);
+  } else {
+    // Wrong
+    card.classList.add('matched-wrong');
+    wrongAttempts++;
+    setTimeout(() => card.classList.remove('matched-wrong'), 400);
+    updatePip(correctCount + wrongAttempts - 1, 'wrong');
+  }
+}
+
+function updatePip(idx, type) {
+  const pip = document.getElementById(`pip-${Math.min(idx, 3)}`);
+  if (pip) pip.classList.add(type);
+}
+
+function updateScore() {
+  document.getElementById('score-label').textContent = `${correctCount} of ${pairs.length} matched`;
+}
+
+function showResult() {
+  const panel = document.getElementById('result-panel');
+  const pct = Math.round((correctCount / (correctCount + wrongAttempts)) * 100);
+  document.getElementById('result-score').textContent = `${correctCount}/4`;
+  document.getElementById('result-title').textContent = wrongAttempts === 0
+    ? 'Perfect — no wrong attempts!'
+    : `All matched${wrongAttempts > 0 ? ` — ${wrongAttempts} wrong attempt${wrongAttempts > 1 ? 's' : ''} along the way` : ''}`;
+  document.getElementById('result-body').textContent = wrongAttempts === 0
+    ? 'You matched every task to the correct navigation path on the first try. You\'re ready to configure C+R as an administrator.'
+    : 'You got there! Review any paths you missed and try again to hit a clean sweep.';
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function restart() {
+  document.querySelectorAll('.pip').forEach(p => p.className = 'pip');
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
