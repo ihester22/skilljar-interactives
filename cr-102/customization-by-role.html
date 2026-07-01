@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customization Options by User Role</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #f8fafc;
+    color: #1a1a2e;
+    padding: 32px 24px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #64748b; margin-bottom: 28px; }
+
+  /* Role tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tab {
+    padding: 9px 20px;
+    border-radius: 24px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab:hover { border-color: #1A6AFF; color: #1A6AFF; }
+  .tab.active { background: #1A6AFF; border-color: #1A6AFF; color: #fff; }
+
+  /* Feature table */
+  .table-wrap { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: #f1f5f9; }
+  thead th { padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; text-align: left; }
+  thead th:last-child { text-align: center; }
+  tbody tr { border-top: 1px solid #f1f5f9; transition: background 0.1s; }
+  tbody tr:hover { background: #f8fafc; }
+  td { padding: 13px 16px; font-size: 14px; }
+  td.category { font-weight: 700; color: #1a1a2e; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; background: #f8fafc; color: #94a3b8; }
+  td.availability { text-align: center; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge-yes  { background: #dcfce7; color: #166534; }
+  .badge-no   { background: #f1f5f9; color: #94a3b8; }
+  .badge-read { background: #fef9c3; color: #854d0e; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .note { margin-top: 16px; font-size: 13px; color: #64748b; padding: 12px 16px; background: #f0f4ff; border-radius: 8px; border-left: 3px solid #1A6AFF; }
+</style>
+</head>
+<body>
+
+<h1>Customization Options by User Role</h1>
+<p class="subtitle">Select a role to see which customization features are available.</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="showRole('admin')">Administrator</button>
+  <button class="tab" onclick="showRole('compliance')">Compliance Staff</button>
+  <button class="tab" onclick="showRole('recruiting')">Recruiting Staff</button>
+  <button class="tab" onclick="showRole('readonly')">Read-Only User</button>
+</div>
+
+<!-- Administrator -->
+<div class="panel active" id="panel-admin">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Description</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" class="category">Views & Headers</td></tr>
+        <tr><td>Column sets</td><td>Create and manage custom column layouts for compliance and recruiting views</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td>SA profile headers</td><td>Customize headers shown on student-athlete profiles</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td>Recruit profile views</td><td>Create custom views for recruit profiles</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td colspan="3" class="category">Custom Fields</td></tr>
+        <tr><td>SA compliance fields</td><td>Add custom fields to student-athlete compliance profiles</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td>Recruit fields</td><td>Create custom data fields for recruit records</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td>Sport-specific fields</td><td>Define fields that appear only for specific sports</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td colspan="3" class="category">Exports</td></tr>
+        <tr><td>Custom export sets</td><td>Build, save, and schedule custom data exports</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+        <tr><td>Schedule exports</td><td>Set recurring export schedules for reports</td><td class="availability"><span class="badge badge-yes">Full</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Administrators have full access to all customization features and are the only role that can create or modify fields, views, and export sets for other users.</p>
+</div>
+
+<!-- Compliance Staff -->
+<div class="panel" id="panel-compliance">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Description</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" class="category">Views & Headers</td></tr>
+        <tr><td>Column sets</td><td>Use admin-created column layouts; cannot create new ones</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td>SA profile headers</td><td>View customized headers on student-athlete profiles</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td>Recruit profile views</td><td>Cannot access recruit profile views</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td colspan="3" class="category">Custom Fields</td></tr>
+        <tr><td>SA compliance fields</td><td>View and enter data in custom compliance fields</td><td class="availability"><span class="badge badge-read">Enter data</span></td></tr>
+        <tr><td>Recruit fields</td><td>No access to recruit custom fields</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td>Sport-specific fields</td><td>View sport-specific fields assigned to their sport</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td colspan="3" class="category">Exports</td></tr>
+        <tr><td>Custom export sets</td><td>Run admin-created export sets; cannot build new ones</td><td class="availability"><span class="badge badge-read">Run only</span></td></tr>
+        <tr><td>Schedule exports</td><td>Cannot create or modify scheduled exports</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Compliance staff can enter data into configured fields and run existing exports, but cannot create or modify any customization settings.</p>
+</div>
+
+<!-- Recruiting Staff -->
+<div class="panel" id="panel-recruiting">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Description</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" class="category">Views & Headers</td></tr>
+        <tr><td>Column sets</td><td>Use admin-created column layouts for recruiting views</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td>SA profile headers</td><td>Cannot access student-athlete compliance profiles</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td>Recruit profile views</td><td>View and use custom recruit profile layouts</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td colspan="3" class="category">Custom Fields</td></tr>
+        <tr><td>SA compliance fields</td><td>No access to student-athlete compliance fields</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td>Recruit fields</td><td>View and enter data in custom recruit fields</td><td class="availability"><span class="badge badge-read">Enter data</span></td></tr>
+        <tr><td>Sport-specific fields</td><td>View sport-specific fields for recruits in their sport</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td colspan="3" class="category">Exports</td></tr>
+        <tr><td>Custom export sets</td><td>Run recruiting-specific export sets</td><td class="availability"><span class="badge badge-read">Run only</span></td></tr>
+        <tr><td>Schedule exports</td><td>Cannot create or modify scheduled exports</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Recruiting staff have access to recruit-side customizations only. Compliance profile features and SA-specific fields are not visible to this role.</p>
+</div>
+
+<!-- Read-Only -->
+<div class="panel" id="panel-readonly">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Description</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" class="category">Views & Headers</td></tr>
+        <tr><td>Column sets</td><td>Use existing column layouts; cannot modify</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td>SA profile headers</td><td>View existing profile headers only</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td>Recruit profile views</td><td>View existing recruit layouts only</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td colspan="3" class="category">Custom Fields</td></tr>
+        <tr><td>SA compliance fields</td><td>Cannot enter or modify data in any custom fields</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td>Recruit fields</td><td>Cannot enter or modify data in any custom fields</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td>Sport-specific fields</td><td>View sport-specific fields only</td><td class="availability"><span class="badge badge-read">View only</span></td></tr>
+        <tr><td colspan="3" class="category">Exports</td></tr>
+        <tr><td>Custom export sets</td><td>No access to export functionality</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+        <tr><td>Schedule exports</td><td>No access to export functionality</td><td class="availability"><span class="badge badge-no">None</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Read-only users can view data and existing layouts but cannot enter data, create custom fields, or run exports.</p>
+</div>
+
+<script>
+function showRole(role) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + role).classList.add('active');
+}
+</script>
+</body>
+</html>
