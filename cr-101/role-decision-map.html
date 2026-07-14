@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Access Role vs. Process Role — Decision Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f8fafc; color: #2d3748; padding-bottom: 48px; }
+  .header { background: #1a1a2e; padding: 18px 28px; display: flex; align-items: center; gap: 12px; }
+  .badge { background: #1A6AFF; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; }
+  .header-title { color: #fff; font-size: 15px; font-weight: 700; }
+  .container { max-width: 700px; margin: 0 auto; padding: 36px 24px 0; }
+  .intro { margin-bottom: 28px; }
+  .intro h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .intro p { font-size: 15px; color: #4a5568; line-height: 1.6; }
+
+  /* Tree nodes */
+  .node { display: none; animation: fadeIn 0.25s ease; }
+  .node.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .question-card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    margin-bottom: 16px;
+  }
+  .q-label { font-size: 11px; font-weight: 700; color: #1A6AFF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .q-text { font-size: 19px; font-weight: 700; color: #1a1a2e; line-height: 1.4; margin-bottom: 20px; }
+  .q-context { background: #eff6ff; border-left: 3px solid #1A6AFF; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 14px; color: #1e40af; line-height: 1.6; margin-bottom: 20px; }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: #2d3748;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-weight: 600;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .choice:hover { border-color: #1A6AFF; background: #f0f7ff; }
+  .choice-icon { font-size: 20px; flex-shrink: 0; }
+
+  /* Breadcrumb trail */
+  .trail { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+  .trail-step { font-size: 12px; color: #94a3b8; }
+  .trail-step.current { color: #1A6AFF; font-weight: 700; }
+  .trail-sep { color: #cbd5e0; font-size: 12px; }
+
+  /* Result cards */
+  .result-card {
+    border-radius: 12px;
+    padding: 28px 28px;
+    margin-bottom: 16px;
+  }
+  .result-card.access { background: #eff6ff; border: 2px solid #1A6AFF; }
+  .result-card.process { background: #f0fdf4; border: 2px solid #16a34a; }
+  .result-card.both { background: #fefce8; border: 2px solid #ca8a04; }
+  .result-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .result-card.access .result-label { color: #1A6AFF; }
+  .result-card.process .result-label { color: #16a34a; }
+  .result-card.both .result-label { color: #ca8a04; }
+  .result-title { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
+  .result-body { font-size: 15px; color: #374151; line-height: 1.7; margin-bottom: 16px; }
+  .result-steps { font-size: 14px; color: #4a5568; line-height: 1.7; }
+  .result-steps strong { color: #1a1a2e; }
+
+  .restart-btn {
+    background: #f1f5f9;
+    color: #1a1a2e;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 11px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .restart-btn:hover { background: #e2e8f0; }
+
+  @media (max-width: 500px) { .q-text { font-size: 17px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="badge">Administrator</span>
+  <span class="header-title">Access Role vs. Process Role — Decision Map</span>
+</div>
+
+<div class="container">
+  <div class="intro">
+    <h2>Which role type do you need?</h2>
+    <p>Answer the questions below to find out whether you need an Access Role, a Process Role, or both — and where to set it up.</p>
+  </div>
+
+  <div class="trail" id="trail"></div>
+
+  <!-- Q1 -->
+  <div class="node active" id="q1">
+    <div class="question-card">
+      <div class="q-label">Step 1 of 3</div>
+      <div class="q-text">What does this user need to do in C+R?</div>
+      <div class="q-context">Start here — your answer will guide you to the right role type.</div>
+      <div class="choices">
+        <button class="choice" onclick="go('q2a', 'Control what they can see and do across modules')">
+          <span class="choice-icon">👁️</span>
+          <span>Control what they can <strong>see and do</strong> across different modules (e.g., read-only vs. full edit access)</span>
+        </button>
+        <button class="choice" onclick="go('q2b', 'Route workflow tasks or approvals to them')">
+          <span class="choice-icon">✅</span>
+          <span>Route <strong>workflow tasks or approvals</strong> to them (e.g., they need to review and approve forms)</span>
+        </button>
+        <button class="choice" onclick="result('both-start', 'Both — control access AND route approvals')">
+          <span class="choice-icon">🔄</span>
+          <span><strong>Both</strong> — control what they can see AND route approvals to them</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2a: access role path -->
+  <div class="node" id="q2a">
+    <div class="question-card">
+      <div class="q-label">Step 2 of 3</div>
+      <div class="q-text">Does an existing default access role fit their needs?</div>
+      <div class="q-context">C+R ships with default roles like Administrator, Compliance Staff, Recruiting Staff, and Read-Only. These cover most use cases.</div>
+      <div class="choices">
+        <button class="choice" onclick="result('access-existing', 'Yes — use a default access role')">
+          <span class="choice-icon">✔️</span>
+          <span>Yes — a default role already covers what they need</span>
+        </button>
+        <button class="choice" onclick="result('access-custom', 'No — I need a custom access role')">
+          <span class="choice-icon">⚙️</span>
+          <span>No — I need to create a custom role with specific permissions</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2b: process role path -->
+  <div class="node" id="q2b">
+    <div class="question-card">
+      <div class="q-label">Step 2 of 3</div>
+      <div class="q-text">Should this approval role apply to all sports or just specific ones?</div>
+      <div class="q-context">Process roles can be scoped globally or limited to specific sports — useful when coaches or compliance staff oversee just one program.</div>
+      <div class="choices">
+        <button class="choice" onclick="result('process-all', 'All sports')">
+          <span class="choice-icon">🌐</span>
+          <span>All sports — this person approves across every program</span>
+        </button>
+        <button class="choice" onclick="result('process-sport', 'Specific sports only')">
+          <span class="choice-icon">🏅</span>
+          <span>Specific sports only — limit their approval role to one or a few programs</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="node" id="res-access-existing">
+    <div class="result-card access">
+      <div class="result-label">✓ Use an Access Role</div>
+      <div class="result-title">Assign a default access role to this user</div>
+      <div class="result-body">Default access roles cover most staff configurations without any setup. Just assign the appropriate role during user creation or from their profile.</div>
+      <div class="result-steps">
+        <strong>Where to do it:</strong> Settings → Security → Users → find the user → Edit → scroll to Access Roles → select the role → Save Changes.<br/><br/>
+        <strong>Common default roles:</strong> Administrator · Compliance Staff · Recruiting Staff · Read-Only
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restart()">← Start over</button>
+  </div>
+
+  <div class="node" id="res-access-custom">
+    <div class="result-card access">
+      <div class="result-label">✓ Create a Custom Access Role</div>
+      <div class="result-title">Build a new access role with specific permissions</div>
+      <div class="result-body">When no default role fits, create a custom access role and choose exactly which modules and features this user can access.</div>
+      <div class="result-steps">
+        <strong>Where to do it:</strong> Settings → Security → Access Roles tab → Add Access Role → name it → click Edit → check each permission → Save.<br/><br/>
+        <strong>Tip:</strong> You can remove permissions at any time by unchecking features and saving again.
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restart()">← Start over</button>
+  </div>
+
+  <div class="node" id="res-process-all">
+    <div class="result-card process">
+      <div class="result-label">✓ Use a Process Role — All Sports</div>
+      <div class="result-title">Assign or create a process role scoped to all sports</div>
+      <div class="result-body">This user will be an approver for the assigned workflows across every sport in your department.</div>
+      <div class="result-steps">
+        <strong>Where to do it:</strong> Settings → Security → Process Roles tab → find or create the role → then go to the user's profile → add the process role → choose All Sports → Save.<br/><br/>
+        <strong>Remember:</strong> Process roles control approval routing, not what the user can see. They may also need an access role.
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restart()">← Start over</button>
+  </div>
+
+  <div class="node" id="res-process-sport">
+    <div class="result-card process">
+      <div class="result-label">✓ Use a Process Role — Sport-Specific</div>
+      <div class="result-title">Assign a process role scoped to specific sports</div>
+      <div class="result-body">This user will only receive workflow approvals for the sport(s) you select — ideal for sport-specific coaches or compliance coordinators.</div>
+      <div class="result-steps">
+        <strong>Where to do it:</strong> Go to the user's profile → add the process role → when prompted, choose specific sports → select the relevant sport(s) → Save.<br/><br/>
+        <strong>Remember:</strong> Process roles control approval routing, not what the user can see. They may also need an access role.
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restart()">← Start over</button>
+  </div>
+
+  <div class="node" id="res-both-start">
+    <div class="result-card both">
+      <div class="result-label">✓ You need both role types</div>
+      <div class="result-title">Assign an Access Role AND a Process Role</div>
+      <div class="result-body">Access roles control what a user can see and do. Process roles control which workflow approvals are routed to them. Most staff members who approve workflows need both.</div>
+      <div class="result-steps">
+        <strong>Step 1 — Access Role:</strong> Settings → Security → Access Roles → assign or create a role that matches their module permissions.<br/><br/>
+        <strong>Step 2 — Process Role:</strong> Go to the user's profile → add the relevant process role(s) → choose all sports or sport-specific → Save.<br/><br/>
+        <strong>Example:</strong> A head coach might have the "Coach" access role (to see recruit and roster data) plus a "Head Coach" process role (to approve eligibility workflows for their sport).
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restart()">← Start over</button>
+  </div>
+
+</div>
+
+<script>
+const trail = [];
+const resultMap = {
+  'access-existing': 'res-access-existing',
+  'access-custom': 'res-access-custom',
+  'process-all': 'res-process-all',
+  'process-sport': 'res-process-sport',
+  'both-start': 'res-both-start',
+};
+
+function hideAll() {
+  document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+}
+
+function go(nodeId, label) {
+  trail.push(label);
+  updateTrail();
+  hideAll();
+  document.getElementById(nodeId).classList.add('active');
+}
+
+function result(key, label) {
+  trail.push(label);
+  updateTrail();
+  hideAll();
+  document.getElementById(resultMap[key]).classList.add('active');
+}
+
+function restart() {
+  trail.length = 0;
+  updateTrail();
+  hideAll();
+  document.getElementById('q1').classList.add('active');
+}
+
+function updateTrail() {
+  const el = document.getElementById('trail');
+  if (!trail.length) { el.innerHTML = ''; return; }
+  el.innerHTML = trail.map((t, i) =>
+    `<span class="trail-step ${i === trail.length-1 ? 'current' : ''}">${t}</span>` +
+    (i < trail.length - 1 ? '<span class="trail-sep">›</span>' : '')
+  ).join('');
+}
+</script>
+</body>
+</html>
