@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Knowledge Check — Workflows</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f8fafc; color: #2d3748; padding-bottom: 48px; }
+  .header { background: #1a1a2e; padding: 18px 28px; display: flex; align-items: center; gap: 12px; }
+  .badge { background: #1A6AFF; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; }
+  .header-title { color: #fff; font-size: 15px; font-weight: 700; }
+  .header-sub { color: #94a3b8; font-size: 13px; margin-left: auto; }
+  .progress-bar-wrap { background: #e2e8f0; height: 4px; }
+  .progress-bar-fill { background: #1A6AFF; height: 4px; transition: width 0.4s ease; }
+  .container { max-width: 700px; margin: 0 auto; padding: 40px 24px 0; }
+  .q-counter { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
+  .scenario-label { font-size: 11px; font-weight: 700; color: #1A6AFF; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+  .question-text { font-size: 20px; font-weight: 700; color: #1a1a2e; line-height: 1.4; margin-bottom: 10px; }
+  .scenario-context { background: #eff6ff; border-left: 3px solid #1A6AFF; border-radius: 0 6px 6px 0; padding: 12px 16px; font-size: 14px; color: #1e40af; line-height: 1.6; margin-bottom: 28px; }
+  .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .option { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 16px 20px; font-size: 15px; color: #2d3748; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; transition: border-color 0.15s, background 0.15s; text-align: left; width: 100%; line-height: 1.5; font-family: inherit; }
+  .option:hover:not(:disabled) { border-color: #1A6AFF; background: #f0f7ff; }
+  .option:disabled { cursor: default; }
+  .option-letter { background: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 700; border-radius: 50%; min-width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .option.correct { border-color: #16a34a; background: #f0fdf4; }
+  .option.correct .option-letter { background: #16a34a; color: #fff; }
+  .option.wrong { border-color: #dc2626; background: #fef2f2; }
+  .option.wrong .option-letter { background: #dc2626; color: #fff; }
+  .option.dimmed { opacity: 0.4; }
+  .feedback-box { border-radius: 10px; padding: 18px 20px; font-size: 14px; line-height: 1.6; margin-bottom: 24px; display: none; }
+  .feedback-box.correct { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+  .feedback-box.wrong { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+  .feedback-title { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+  .btn { background: #1A6AFF; color: #fff; border: none; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; display: none; }
+  .btn:hover { background: #1558e0; }
+  .score-screen { display: none; text-align: center; padding: 20px 0; }
+  .score-circle { width: 110px; height: 110px; border-radius: 50%; background: #1A6AFF; color: #fff; font-size: 36px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+  .score-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
+  .score-sub { font-size: 16px; color: #4a5568; margin-bottom: 32px; line-height: 1.6; }
+  .score-breakdown { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 28px; text-align: left; }
+  .breakdown-row { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-label { flex: 1; color: #2d3748; line-height: 1.4; }
+  .retry-btn { background: #f1f5f9; color: #1a1a2e; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
+  .retry-btn:hover { background: #e2e8f0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="badge">Administrator</span>
+  <span class="header-title">Workflows — Knowledge Check</span>
+  <span class="header-sub" id="header-counter">Question 1 of 4</span>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+
+<div class="container">
+  <div id="quiz-area">
+    <div class="q-counter" id="q-counter">Question 1 of 4</div>
+    <div class="scenario-label" id="scenario-label"></div>
+    <div class="question-text" id="question-text"></div>
+    <div class="scenario-context" id="scenario-context"></div>
+    <div class="options" id="options-list"></div>
+    <div class="feedback-box" id="feedback-box"><div class="feedback-title" id="feedback-title"></div><div id="feedback-body"></div></div>
+    <button class="btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+  </div>
+  <div class="score-screen" id="score-screen">
+    <div class="score-circle" id="score-circle"></div>
+    <div class="score-title" id="score-title"></div>
+    <div class="score-sub" id="score-sub"></div>
+    <div class="score-breakdown" id="score-breakdown"></div>
+    <button class="retry-btn" onclick="restart()">Try again</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    scenario: "Scenario 1 — Workflow Packets",
+    question: "You need to send three beginning-of-year NCAA forms to the entire baseball roster at once. What's the fastest way to do this?",
+    context: "Sending each form individually to every athlete would take a long time.",
+    options: [
+      "Email each athlete the forms as PDFs.",
+      "Create a Workflow Packet with the three forms, then assign it to the roster from the checkbox menu.",
+      "Assign each of the three workflows individually to every athlete.",
+      "Ask each coach to distribute the forms manually."
+    ],
+    correct: 1,
+    feedback_correct: "Correct. Workflow Packets let you group multiple workflows together and assign them all at once — ideal for beginning-of-year paperwork.",
+    feedback_wrong: "Not quite. Create a Workflow Packet with the forms you need, then select the roster and use Assign Workflow → Workflow Packet to send them all at once."
+  },
+  {
+    scenario: "Scenario 2 — Process Roles",
+    question: "You want to give a graduate assistant compliance member approval access to just one specific workflow. What should you do?",
+    context: "This person shouldn't have broad access — just enough to do this one job.",
+    options: [
+      "Make them a system administrator.",
+      "Add a new process role scoped to that workflow and assign it to them.",
+      "Give them the same access role as the head compliance officer.",
+      "Process roles can't be limited to one workflow, so grant full access instead."
+    ],
+    correct: 1,
+    feedback_correct: "Right. Process roles define a user's responsibility within specific workflows — add a role for this purpose and assign it to the graduate assistant.",
+    feedback_wrong: "Not quite. Add a process role for this specific responsibility and assign it — process roles are exactly how you scope access to individual workflows."
+  },
+  {
+    scenario: "Scenario 3 — Fields",
+    question: "You need to add a new heading to a live workflow's Fields tab. What's the first step?",
+    context: "The workflow is already published and being used by staff.",
+    options: [
+      "Delete the workflow and recreate it with the new heading.",
+      "Select View Published Version, then Edit Fields, and confirm Yes to edit a new version.",
+      "Email support and wait for them to make the change.",
+      "Headings can only be added when a workflow is first created."
+    ],
+    correct: 1,
+    feedback_correct: "Correct. Select View Published Version → Edit Fields → Yes, then use the self-service tool on the Fields tab to add the heading.",
+    feedback_wrong: "Not quite. Select View Published Version → Edit Fields → Yes to start editing a new version, then add the heading from the Fields tab."
+  },
+  {
+    scenario: "Scenario 4 — Preview & Publish",
+    question: "Before making a workflow live, what should you always do first?",
+    context: "You want to be sure everything works as intended before staff and student-athletes start using it.",
+    options: [
+      "Publish it immediately — you can always fix issues later.",
+      "Preview the workflow, complete it as a submitter would, and review it from the admin view before publishing.",
+      "Ask a random staff member to test it without telling them what to look for.",
+      "Skip preview if the workflow looks simple."
+    ],
+    correct: 1,
+    feedback_correct: "Correct. Always preview a workflow — walk through it as the submitter, then review it from the compliance/admin view — before clicking Publish Workflow.",
+    feedback_wrong: "Not quite. Use the Preview button to walk through the workflow as a submitter and reviewer before publishing it."
+  }
+];
+
+let current = 0, score = 0, answered = false, results = [];
+
+function render() {
+  const q = questions[current];
+  document.getElementById('scenario-label').textContent = q.scenario;
+  document.getElementById('question-text').textContent = q.question;
+  document.getElementById('scenario-context').textContent = q.context;
+  document.getElementById('q-counter').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('header-counter').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('progress-bar').style.width = `${(current/questions.length)*100}%`;
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  ['A','B','C','D'].forEach((l, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${l}</span><span>${q.options[i]}</span>`;
+    btn.onclick = () => select(i, btn);
+    list.appendChild(btn);
+  });
+  const fb = document.getElementById('feedback-box');
+  fb.style.display = 'none'; fb.className = 'feedback-box';
+  document.getElementById('next-btn').style.display = 'none';
+  answered = false;
+}
+
+function select(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const options = document.querySelectorAll('.option');
+  const isCorrect = idx === q.correct;
+  if (isCorrect) score++;
+  results.push({ label: q.scenario, correct: isCorrect });
+  options.forEach((el, i) => {
+    el.disabled = true;
+    if (i === q.correct) { el.classList.add('correct'); el.querySelector('.option-letter').style.cssText = 'background:#16a34a;color:#fff'; }
+    else if (i === idx && !isCorrect) { el.classList.add('wrong'); el.querySelector('.option-letter').style.cssText = 'background:#dc2626;color:#fff'; }
+    else el.classList.add('dimmed');
+  });
+  const fb = document.getElementById('feedback-box');
+  fb.style.display = 'block';
+  fb.className = 'feedback-box ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('feedback-title').textContent = isCorrect ? '✓ Correct' : '✗ Not quite';
+  document.getElementById('feedback-body').textContent = isCorrect ? q.feedback_correct : q.feedback_wrong;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = current < questions.length - 1 ? 'Next question →' : 'See my results →';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) { showScore(); return; }
+  render();
+}
+
+function showScore() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'block';
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('header-counter').textContent = 'Complete';
+  const pct = Math.round((score/questions.length)*100);
+  document.getElementById('score-circle').textContent = `${pct}%`;
+  document.getElementById('score-title').textContent = pct === 100 ? 'Perfect score!' : pct >= 75 ? 'Strong work!' : 'Keep practicing';
+  document.getElementById('score-sub').textContent = `You answered ${score} of ${questions.length} scenarios correctly. ` + (pct === 100 ? 'You\'re ready to build and manage workflows with confidence.' : 'Review the scenarios you missed and try again when you\'re ready.');
+  document.getElementById('score-breakdown').innerHTML = results.map(r =>
+    `<div class="breakdown-row"><span style="font-size:16px;flex-shrink:0;">${r.correct ? '✅' : '❌'}</span><span class="breakdown-label">${r.label}</span></div>`
+  ).join('');
+}
+
+function restart() {
+  current = 0; score = 0; answered = false; results = [];
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('score-screen').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
