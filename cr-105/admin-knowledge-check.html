@@ -3,238 +3,222 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Knowledge Check — Recruiting &amp; Complimentary Tickets</title>
+<title>Matching Activity — Recruiting &amp; Complimentary Tickets</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f8fafc; color: #2d3748; padding-bottom: 48px; }
-  .header { background: #1a1a2e; padding: 18px 28px; display: flex; align-items: center; gap: 12px; }
+  .header { background: #1a1a2e; padding: 18px 28px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .badge { background: #1A6AFF; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; }
   .header-title { color: #fff; font-size: 15px; font-weight: 700; }
   .header-sub { color: #94a3b8; font-size: 13px; margin-left: auto; }
   .progress-bar-wrap { background: #e2e8f0; height: 4px; }
   .progress-bar-fill { background: #1A6AFF; height: 4px; transition: width 0.4s ease; }
-  .container { max-width: 700px; margin: 0 auto; padding: 40px 24px 0; }
-  .q-counter { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
-  .scenario-label { font-size: 11px; font-weight: 700; color: #1A6AFF; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
-  .question-text { font-size: 20px; font-weight: 700; color: #1a1a2e; line-height: 1.4; margin-bottom: 10px; }
-  .scenario-context { background: #eff6ff; border-left: 3px solid #1A6AFF; border-radius: 0 6px 6px 0; padding: 12px 16px; font-size: 14px; color: #1e40af; line-height: 1.6; margin-bottom: 28px; }
-  .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-  .option { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 16px 20px; font-size: 15px; color: #2d3748; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; transition: border-color 0.15s, background 0.15s; text-align: left; width: 100%; line-height: 1.5; font-family: inherit; }
-  .option:hover:not(:disabled) { border-color: #1A6AFF; background: #f0f7ff; }
-  .option:disabled { cursor: default; }
-  .option-letter { background: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 700; border-radius: 50%; min-width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .option.correct { border-color: #16a34a; background: #f0fdf4; }
-  .option.correct .option-letter { background: #16a34a; color: #fff; }
-  .option.wrong { border-color: #dc2626; background: #fef2f2; }
-  .option.wrong .option-letter { background: #dc2626; color: #fff; }
-  .option.dimmed { opacity: 0.4; }
-  .feedback-box { border-radius: 10px; padding: 18px 20px; font-size: 14px; line-height: 1.6; margin-bottom: 24px; display: none; }
-  .feedback-box.correct { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-  .feedback-box.wrong { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-  .feedback-title { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
-  .btn { background: #1A6AFF; color: #fff; border: none; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; display: none; }
+  .container { max-width: 780px; margin: 0 auto; padding: 32px 24px 0; }
+  .intro-label { font-size: 11px; font-weight: 700; color: #1A6AFF; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+  .intro-text { font-size: 15px; color: #4a5568; line-height: 1.6; margin-bottom: 24px; }
+  .mistakes-counter { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; margin-bottom: 24px; }
+  .col-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .card { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; font-size: 14px; color: #2d3748; cursor: pointer; text-align: left; width: 100%; line-height: 1.45; font-family: inherit; transition: border-color 0.15s, background 0.15s, transform 0.1s; }
+  .card:hover:not(:disabled) { border-color: #1A6AFF; background: #f0f7ff; }
+  .card:disabled { cursor: default; }
+  .term-card { font-weight: 700; color: #1a1a2e; }
+  .card.selected { border-color: #1A6AFF; background: #eff6ff; box-shadow: 0 0 0 3px rgba(26,106,255,0.15); }
+  .card.matched { border-color: #16a34a; background: #f0fdf4; color: #166534; opacity: 0.85; }
+  .card.wrong { border-color: #dc2626; background: #fef2f2; }
+  .btn { background: #1A6AFF; color: #fff; border: none; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
   .btn:hover { background: #1558e0; }
   .score-screen { display: none; text-align: center; padding: 20px 0; }
-  .score-circle { width: 110px; height: 110px; border-radius: 50%; background: #1A6AFF; color: #fff; font-size: 36px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+  .score-circle { width: 110px; height: 110px; border-radius: 50%; background: #1A6AFF; color: #fff; font-size: 30px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; text-align: center; line-height: 1.1; }
   .score-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
   .score-sub { font-size: 16px; color: #4a5568; margin-bottom: 32px; line-height: 1.6; }
   .score-breakdown { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 28px; text-align: left; }
-  .breakdown-row { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .breakdown-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #f1f5f9; font-size: 14px; line-height: 1.5; }
   .breakdown-row:last-child { border-bottom: none; }
-  .breakdown-label { flex: 1; color: #2d3748; line-height: 1.4; }
+  .breakdown-term { font-weight: 700; color: #1a1a2e; flex-shrink: 0; min-width: 190px; }
+  .breakdown-def { color: #4a5568; }
   .retry-btn { background: #f1f5f9; color: #1a1a2e; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 28px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
   .retry-btn:hover { background: #e2e8f0; }
+  @media (max-width: 640px) {
+    .board { grid-template-columns: 1fr; }
+    .breakdown-term { min-width: 0; }
+    .breakdown-row { flex-direction: column; gap: 2px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="header">
   <span class="badge">Administrator</span>
-  <span class="header-title">Recruiting &amp; Complimentary Tickets — Knowledge Check</span>
-  <span class="header-sub" id="header-counter">Question 1 of 6</span>
+  <span class="header-title">Recruiting &amp; Complimentary Tickets — Matching Activity</span>
+  <span class="header-sub" id="header-counter">0 of 6 matched</span>
 </div>
 <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
 
 <div class="container">
-  <div id="quiz-area">
-    <div class="q-counter" id="q-counter">Question 1 of 6</div>
-    <div class="scenario-label" id="scenario-label"></div>
-    <div class="question-text" id="question-text"></div>
-    <div class="scenario-context" id="scenario-context"></div>
-    <div class="options" id="options-list"></div>
-    <div class="feedback-box" id="feedback-box"><div class="feedback-title" id="feedback-title"></div><div id="feedback-body"></div></div>
-    <button class="btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+  <div id="game-area">
+    <div class="intro-label">Match Each Term</div>
+    <div class="intro-text">Select a term on the left, then select the definition on the right that matches it. Matched pairs lock in green — mismatches bounce back so you can try again.</div>
+    <div class="mistakes-counter" id="mistakes-counter">Mistakes: 0</div>
+    <div class="board">
+      <div>
+        <div class="col-label">Terms</div>
+        <div class="board" style="grid-template-columns: 1fr; margin-bottom:0;" id="terms-list"></div>
+      </div>
+      <div>
+        <div class="col-label">Definitions</div>
+        <div class="board" style="grid-template-columns: 1fr; margin-bottom:0;" id="defs-list"></div>
+      </div>
+    </div>
   </div>
   <div class="score-screen" id="score-screen">
     <div class="score-circle" id="score-circle"></div>
     <div class="score-title" id="score-title"></div>
     <div class="score-sub" id="score-sub"></div>
     <div class="score-breakdown" id="score-breakdown"></div>
-    <button class="retry-btn" onclick="restart()">Try again</button>
+    <button class="retry-btn" onclick="restart()">Shuffle & try again</button>
   </div>
 </div>
 
 <script>
-const questions = [
+const pairs = [
   {
-    scenario: "Scenario 1 — Adding Recruits",
-    question: "A coach needs to add 40 incoming recruits at once instead of one at a time. What's the right way to do this?",
-    context: "Individual entry works for a handful of recruits, but this coach has a full recruiting class to add.",
-    options: [
-      "Add each recruit one at a time using the Add Recruit button.",
-      "Prepare a spreadsheet with at least first name, last name, and graduation year, and send it to Teamworks support to import.",
-      "Ask the system administrator to manually type them into the database.",
-      "Import is only available for graduating seniors, not incoming recruits."
-    ],
-    correct: 1,
-    feedback_correct: "Correct. Bulk imports go through Teamworks support via spreadsheet — first name, last name, and graduation year are required, with additional fields based on your department and sport settings.",
-    feedback_wrong: "Not quite. For bulk adds, send a spreadsheet to Teamworks support — first name, last name, and graduation year are the required fields."
+    id: 0,
+    term: "Recruiting Violations",
+    def: "Documents, merges, and resolves recruiting-related violations flagged in the system."
   },
   {
-    scenario: "Scenario 2 — Recruit Filters and Fields",
-    question: "Your basketball program wants to track a recruit's dominant hand, but baseball doesn't need that field. Where do you configure it?",
-    context: "Some recruit data points apply to every sport; others are specific to one program's process.",
-    options: [
-      "Settings → Department, since it should apply department-wide.",
-      "Settings → Sport, so the field only appears for basketball.",
-      "It can't be customized — dominant hand isn't a trackable field.",
-      "Ask basketball recruits to note it in the comments section instead."
-    ],
-    correct: 1,
-    feedback_correct: "Right. Sport-level settings (Settings → Sport) let you configure filters and fields unique to one program, like dominant hand for basketball, without affecting other sports.",
-    feedback_wrong: "Not quite. That's a sport-specific field, so it belongs under Settings → Sport — department-level settings apply to every sport instead."
+    id: 1,
+    term: "Recruit Filters and Fields",
+    def: "Determines how recruits are categorized, filtered, and reported on across the department and each sport."
   },
   {
-    scenario: "Scenario 3 — Recruiting Violations",
-    question: "A recruiting violation flag appears for a coach's off-campus contact. What's the correct next step?",
-    context: "The flag needs to be reviewed and documented, not just dismissed.",
-    options: [
-      "Delete the flag since it was likely a system error.",
-      "Open the flag in Recruiting Violations, review the bylaw and communication summary, then confirm or override it.",
-      "Wait for the coach to explain before doing anything.",
-      "Automatically confirm every flag without review."
-    ],
-    correct: 1,
-    feedback_correct: "Correct. Recruiting Violations documents the flag with the applicable bylaw and communication summary — reviewing it and choosing Confirm or Override is what creates the audit trail.",
-    feedback_wrong: "Not quite. Open the flag in Recruiting Violations, review the bylaw and communication summary, and confirm or override it to document the resolution."
+    id: 2,
+    term: "Recruiting Activity Tab",
+    def: "Gives compliance staff a centralized view of every logged recruiting interaction, contact, and comment."
   },
   {
-    scenario: "Scenario 4 — Recruiting Activity",
-    question: "Compliance wants to confirm a coach's contacts with a recruit stayed within permissible periods. Where do they check this?",
-    context: "You need a centralized view of every logged recruiting action for that coach.",
-    options: [
-      "The Recruiting Activity tab in the Compliance module, filtered by coach and date range.",
-      "The coach's personal calendar.",
-      "The Complimentary Tickets module.",
-      "There's no way to review this after the fact."
-    ],
-    correct: 0,
-    feedback_correct: "Correct. The Recruiting Activity tab centralizes every logged interaction, contact, visit, call, and comment, and can be filtered by coach, sport, date range, or activity type.",
-    feedback_wrong: "Not quite. The Recruiting Activity tab in the Compliance module is built for exactly this — filter by coach and date range to review permissible periods."
+    id: 3,
+    term: "Sports Settings",
+    def: "Turns on ticketing for a sport and sets guest approval requirements and ticket limits."
   },
   {
-    scenario: "Scenario 5 — Enabling Ticketing",
-    question: "Volleyball wants to start offering complimentary tickets this season, but the sport currently shows \"No\" under Enabled for Tickets. What do you do?",
-    context: "Ticketing needs to be turned on before any requests can come in for that sport.",
-    options: [
-      "Click into the sport under Sports Settings and toggle Enabled Ticketing to yes.",
-      "Nothing — ticketing turns on automatically once the season calendar syncs.",
-      "Contact Teamworks support to manually flip a database flag.",
-      "Enable it from the Guests tab."
-    ],
-    correct: 0,
-    feedback_correct: "Correct. Under Sports Settings, clicking into the sport and toggling Enabled Ticketing to yes turns ticketing on, where you can also set guest approval requirements and ticket limits.",
-    feedback_wrong: "Not quite. Click into the sport under Sports Settings and toggle Enabled Ticketing to yes to turn it on for that program."
+    id: 4,
+    term: "Guest-Specific Questions",
+    def: "Asked once per guest whenever a ticket request is made for them."
   },
   {
-    scenario: "Scenario 6 — Generating a Guest List",
-    question: "Ticket requests for Saturday's game have all been reviewed and approved. Now you need a printable pass list for gate staff. What's next?",
-    context: "The list needs to reflect only approved requests, filtered the right way, in a format gate staff can use.",
-    options: [
-      "Export the raw requests table as a spreadsheet.",
-      "From the event, click Generate Guest List, select requester type, status, and sport, then generate a PDF.",
-      "Manually retype the approved names into a document.",
-      "Guest lists can only be generated the morning of the event."
-    ],
-    correct: 1,
-    feedback_correct: "Correct. Generate Guest List (from the specific event) lets you filter by requester type, request status, and sport, then produces a printable PDF pass list.",
-    feedback_wrong: "Not quite. Use Generate Guest List on the event page — filter by requester type, status, and sport, then generate the PDF."
+    id: 5,
+    term: "Generate Guest List",
+    def: "Produces a printable PDF pass list for an event once tickets are reviewed and approved."
   }
 ];
 
-let current = 0, score = 0, answered = false, results = [];
+let selectedTerm = null, selectedDef = null;
+let matched = new Set();
+let mistakes = 0;
+let termOrder = [], defOrder = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function render() {
-  const q = questions[current];
-  document.getElementById('scenario-label').textContent = q.scenario;
-  document.getElementById('question-text').textContent = q.question;
-  document.getElementById('scenario-context').textContent = q.context;
-  document.getElementById('q-counter').textContent = `Question ${current+1} of ${questions.length}`;
-  document.getElementById('header-counter').textContent = `Question ${current+1} of ${questions.length}`;
-  document.getElementById('progress-bar').style.width = `${(current/questions.length)*100}%`;
-  const list = document.getElementById('options-list');
-  list.innerHTML = '';
-  ['A','B','C','D'].forEach((l, i) => {
+  termOrder = shuffle(pairs.map(p => p.id));
+  defOrder = shuffle(pairs.map(p => p.id));
+  renderColumn('terms-list', termOrder, 'term', selectTerm);
+  renderColumn('defs-list', defOrder, 'def', selectDef);
+  updateProgress();
+}
+
+function renderColumn(containerId, order, field, handler) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  order.forEach(id => {
+    const pair = pairs.find(p => p.id === id);
     const btn = document.createElement('button');
-    btn.className = 'option';
-    btn.innerHTML = `<span class="option-letter">${l}</span><span>${q.options[i]}</span>`;
-    btn.onclick = () => select(i, btn);
-    list.appendChild(btn);
+    btn.className = 'card' + (field === 'term' ? ' term-card' : '') + (matched.has(id) ? ' matched' : '');
+    btn.textContent = pair[field];
+    btn.disabled = matched.has(id);
+    btn.dataset.id = id;
+    btn.onclick = () => handler(id, btn);
+    el.appendChild(btn);
   });
-  const fb = document.getElementById('feedback-box');
-  fb.style.display = 'none'; fb.className = 'feedback-box';
-  document.getElementById('next-btn').style.display = 'none';
-  answered = false;
 }
 
-function select(idx, btn) {
-  if (answered) return;
-  answered = true;
-  const q = questions[current];
-  const options = document.querySelectorAll('.option');
-  const isCorrect = idx === q.correct;
-  if (isCorrect) score++;
-  results.push({ label: q.scenario, correct: isCorrect });
-  options.forEach((el, i) => {
-    el.disabled = true;
-    if (i === q.correct) { el.classList.add('correct'); el.querySelector('.option-letter').style.cssText = 'background:#16a34a;color:#fff'; }
-    else if (i === idx && !isCorrect) { el.classList.add('wrong'); el.querySelector('.option-letter').style.cssText = 'background:#dc2626;color:#fff'; }
-    else el.classList.add('dimmed');
-  });
-  const fb = document.getElementById('feedback-box');
-  fb.style.display = 'block';
-  fb.className = 'feedback-box ' + (isCorrect ? 'correct' : 'wrong');
-  document.getElementById('feedback-title').textContent = isCorrect ? '✓ Correct' : '✗ Not quite';
-  document.getElementById('feedback-body').textContent = isCorrect ? q.feedback_correct : q.feedback_wrong;
-  const nextBtn = document.getElementById('next-btn');
-  nextBtn.style.display = 'inline-block';
-  nextBtn.textContent = current < questions.length - 1 ? 'Next question →' : 'See my results →';
+function selectTerm(id, btn) {
+  if (matched.has(id)) return;
+  clearSelectionClass('terms-list');
+  selectedTerm = id;
+  btn.classList.add('selected');
+  if (selectedDef !== null) checkMatch();
 }
 
-function nextQuestion() {
-  current++;
-  if (current >= questions.length) { showScore(); return; }
-  render();
+function selectDef(id, btn) {
+  if (matched.has(id)) return;
+  clearSelectionClass('defs-list');
+  selectedDef = id;
+  btn.classList.add('selected');
+  if (selectedTerm !== null) checkMatch();
 }
 
-function showScore() {
-  document.getElementById('quiz-area').style.display = 'none';
+function clearSelectionClass(containerId) {
+  document.querySelectorAll(`#${containerId} .card`).forEach(c => c.classList.remove('selected'));
+}
+
+function checkMatch() {
+  const termBtn = document.querySelector(`#terms-list .card[data-id="${selectedTerm}"]`);
+  const defBtn = document.querySelector(`#defs-list .card[data-id="${selectedDef}"]`);
+  if (selectedTerm === selectedDef) {
+    matched.add(selectedTerm);
+    termBtn.classList.remove('selected');
+    defBtn.classList.remove('selected');
+    termBtn.classList.add('matched');
+    defBtn.classList.add('matched');
+    termBtn.disabled = true;
+    defBtn.disabled = true;
+    selectedTerm = null; selectedDef = null;
+    updateProgress();
+    if (matched.size === pairs.length) setTimeout(showComplete, 400);
+  } else {
+    mistakes++;
+    document.getElementById('mistakes-counter').textContent = `Mistakes: ${mistakes}`;
+    termBtn.classList.add('wrong');
+    defBtn.classList.add('wrong');
+    setTimeout(() => {
+      termBtn.classList.remove('wrong', 'selected');
+      defBtn.classList.remove('wrong', 'selected');
+      selectedTerm = null; selectedDef = null;
+    }, 500);
+  }
+}
+
+function updateProgress() {
+  document.getElementById('header-counter').textContent = `${matched.size} of ${pairs.length} matched`;
+  document.getElementById('progress-bar').style.width = `${(matched.size / pairs.length) * 100}%`;
+}
+
+function showComplete() {
+  document.getElementById('game-area').style.display = 'none';
   document.getElementById('score-screen').style.display = 'block';
-  document.getElementById('progress-bar').style.width = '100%';
-  document.getElementById('header-counter').textContent = 'Complete';
-  const pct = Math.round((score/questions.length)*100);
-  document.getElementById('score-circle').textContent = `${pct}%`;
-  document.getElementById('score-title').textContent = pct === 100 ? 'Perfect score!' : pct >= 75 ? 'Strong work!' : 'Keep practicing';
-  document.getElementById('score-sub').textContent = `You answered ${score} of ${questions.length} scenarios correctly. ` + (pct === 100 ? 'You\'re ready to manage recruiting compliance and complimentary tickets with confidence.' : 'Review the scenarios you missed and try again when you\'re ready.');
-  document.getElementById('score-breakdown').innerHTML = results.map(r =>
-    `<div class="breakdown-row"><span style="font-size:16px;flex-shrink:0;">${r.correct ? '✅' : '❌'}</span><span class="breakdown-label">${r.label}</span></div>`
+  document.getElementById('score-circle').innerHTML = `${pairs.length}/${pairs.length}`;
+  document.getElementById('score-title').textContent = mistakes === 0 ? 'Perfect match!' : mistakes <= 2 ? 'Nice work!' : 'All matched!';
+  document.getElementById('score-sub').textContent = `You matched all ${pairs.length} pairs with ${mistakes} mistake${mistakes === 1 ? '' : 's'}.`;
+  document.getElementById('score-breakdown').innerHTML = pairs.map(p =>
+    `<div class="breakdown-row"><span class="breakdown-term">✅ ${p.term}</span><span class="breakdown-def">${p.def}</span></div>`
   ).join('');
 }
 
 function restart() {
-  current = 0; score = 0; answered = false; results = [];
-  document.getElementById('quiz-area').style.display = 'block';
+  selectedTerm = null; selectedDef = null; matched = new Set(); mistakes = 0;
+  document.getElementById('mistakes-counter').textContent = 'Mistakes: 0';
+  document.getElementById('game-area').style.display = 'block';
   document.getElementById('score-screen').style.display = 'none';
   render();
 }
