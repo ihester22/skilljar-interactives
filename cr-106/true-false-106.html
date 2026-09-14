@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>True or False — Data Integrations &amp; Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Manrope', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f8fafc; color: #2d3748; padding-bottom: 60px; }
+  .header { background: #1a1a2e; padding: 18px 28px; display: flex; align-items: center; gap: 12px; }
+  .badge { background: #1A6AFF; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 4px; }
+  .header-title { color: #fff; font-size: 15px; font-weight: 700; }
+  .container { max-width: 720px; margin: 0 auto; padding: 36px 24px 0; }
+  .intro { margin-bottom: 10px; }
+  .intro h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .intro p { font-size: 15px; color: #4a5568; line-height: 1.6; }
+  .score-bar { display: flex; align-items: center; gap: 12px; margin: 20px 0 28px; }
+  .score-label { font-size: 13px; color: #64748b; }
+  .pips { display: flex; gap: 6px; }
+  .pip { width: 32px; height: 8px; border-radius: 4px; background: #e2e8f0; transition: background 0.4s; }
+  .pip.true { background: #16a34a; }
+  .pip.false { background: #dc2626; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 540px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Flip card */
+  .card-wrap { perspective: 1000px; min-height: 200px; cursor: pointer; }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    transform-style: preserve-3d;
+    transition: transform 0.45s ease;
+  }
+  .card-wrap.flipped .card-inner { transform: rotateY(180deg); }
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    min-height: 200px;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .card-front {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+  }
+  .card-front:hover { border-color: #1A6AFF; }
+  .card-back { transform: rotateY(180deg); }
+  .card-back.is-true { background: #f0fdf4; border: 2px solid #16a34a; }
+  .card-back.is-false { background: #fef2f2; border: 2px solid #dc2626; }
+
+  .card-num { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .card-statement { font-size: 15px; font-weight: 600; color: #1a1a2e; line-height: 1.5; flex: 1; margin-bottom: 16px; }
+  .flip-hint { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px; }
+
+  .verdict { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .card-back.is-true .verdict { color: #16a34a; }
+  .card-back.is-false .verdict { color: #dc2626; }
+  .explanation { font-size: 13px; line-height: 1.6; flex: 1; }
+  .card-back.is-true .explanation { color: #166534; }
+  .card-back.is-false .explanation { color: #991b1b; }
+  .flip-back { font-size: 12px; margin-top: 14px; opacity: 0.6; }
+
+  .reset-btn {
+    background: #1A6AFF; color: #fff; border: none; border-radius: 8px;
+    padding: 12px 28px; font-size: 15px; font-weight: 700; font-family: inherit;
+    cursor: pointer; margin-top: 32px; display: none;
+  }
+  .reset-btn:hover { background: #1558e0; }
+  .all-done { display: none; text-align: center; margin-top: 32px; }
+  .all-done-title { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .all-done-sub { font-size: 15px; color: #4a5568; line-height: 1.6; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="badge">Administrator</span>
+  <span class="header-title">Data Integrations &amp; Hub — True or False?</span>
+</div>
+
+<div class="container">
+  <div class="intro">
+    <h2>True or False?</h2>
+    <p>Click each card to flip it and see whether the statement is true or false — and why.</p>
+  </div>
+
+  <div class="score-bar">
+    <span class="score-label">Flipped:</span>
+    <div class="pips" id="pips"></div>
+    <span class="score-label" id="score-label">0 of 6</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="all-done" id="all-done">
+    <div class="all-done-title">You've reviewed all 6 statements.</div>
+    <div class="all-done-sub">Ready for the knowledge check? Head to the next lesson when you're ready.</div>
+    <button class="reset-btn" id="reset-btn" onclick="reset()" style="display:inline-block;">Flip them back</button>
+  </div>
+</div>
+
+<script>
+const cards = [
+  {
+    statement: "New student-athlete profiles can be created automatically through a data import — no manual entry required.",
+    verdict: false,
+    explanation: "New student-athlete profiles can't be created via automated import. They have to be created manually in Compliance and Recruiting, or by direct import with support team assistance."
+  },
+  {
+    statement: "By default, financial aid awards are tied to a sport using the Division I sport hierarchy.",
+    verdict: true,
+    explanation: "Correct. Unless you send your own sport values with a sport translation file, Compliance and Recruiting uses the Division I sport hierarchy to assign awards to a sport."
+  },
+  {
+    statement: "Including archived prospects in your admissions file is a safe way to keep their records up to date.",
+    verdict: false,
+    explanation: "Including archived prospects in the file will reactivate their Compliance and Recruiting profile — that's exactly why archived prospects should be excluded from the file."
+  },
+  {
+    statement: "Term codes must be formatted consistently across all student-athlete files — different term code translations for different files aren't accepted.",
+    verdict: true,
+    explanation: "Correct. Compliance and Recruiting can't accept different term code translations across files, so term code formatting has to stay consistent everywhere it's used."
+  },
+  {
+    statement: "Deactivating a user in Compliance and Recruiting automatically deactivates their Teamworks Hub account too, with no extra step.",
+    verdict: false,
+    explanation: "It's not automatic — when you deactivate a user, you're prompted to indicate whether to also deactivate them in Teamworks Hub, and you have to confirm that separately."
+  },
+  {
+    statement: "Once an event syncs from Teamworks Hub to Compliance and Recruiting, its event type, date/time, and attendees can no longer be edited from C+R.",
+    verdict: true,
+    explanation: "Correct. Those fields are locked on synced events — use the Re-sync Event with Hub button to manually pull in the latest details instead of editing them directly."
+  }
+];
+
+let flipped = 0;
+
+function build() {
+  const grid = document.getElementById('grid');
+  const pips = document.getElementById('pips');
+  grid.innerHTML = '';
+  pips.innerHTML = '';
+  flipped = 0;
+  document.getElementById('score-label').textContent = '0 of 6';
+  document.getElementById('all-done').style.display = 'none';
+
+  cards.forEach((c, i) => {
+    // pip
+    const pip = document.createElement('div');
+    pip.className = 'pip';
+    pip.id = `pip-${i}`;
+    pips.appendChild(pip);
+
+    // card
+    const wrap = document.createElement('div');
+    wrap.className = 'card-wrap';
+    wrap.id = `card-${i}`;
+    wrap.onclick = () => flip(i, c);
+    wrap.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">
+          <div>
+            <div class="card-num">Statement ${i+1}</div>
+            <div class="card-statement">${c.statement}</div>
+          </div>
+          <div class="flip-hint">↩ Click to reveal</div>
+        </div>
+        <div class="card-back ${c.verdict ? 'is-true' : 'is-false'}">
+          <div>
+            <div class="verdict">${c.verdict ? '✓ True' : '✗ False'}</div>
+            <div class="explanation">${c.explanation}</div>
+          </div>
+          <div class="flip-back">↩ Click to flip back</div>
+        </div>
+      </div>`;
+    grid.appendChild(wrap);
+  });
+}
+
+function flip(i, c) {
+  const wrap = document.getElementById(`card-${i}`);
+  const wasFlipped = wrap.classList.contains('flipped');
+  wrap.classList.toggle('flipped');
+
+  if (!wasFlipped) {
+    flipped++;
+    const pip = document.getElementById(`pip-${i}`);
+    pip.classList.add(c.verdict ? 'true' : 'false');
+    document.getElementById('score-label').textContent = `${flipped} of 6`;
+    if (flipped === 6) {
+      document.getElementById('all-done').style.display = 'block';
+      document.getElementById('all-done').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+}
+
+function reset() {
+  build();
+}
+
+build();
+</script>
+</body>
+</html>
